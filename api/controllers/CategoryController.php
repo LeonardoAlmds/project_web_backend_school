@@ -1,12 +1,17 @@
 <?php
+include_once './config/database.php';  // Inclui o database.php
 include_once './models/Category.php';
 
 class CategoryController {
     private $category;
 
     public function __construct() {
-        global $pdo;
-        $this->category = new Category($pdo);
+        // Cria uma nova conexão de banco de dados
+        $database = new Database();
+        $db = $database->connect();
+        
+        // Passa a conexão para o modelo Category
+        $this->category = new Category($db);
     }
 
     public function listCategories() {
