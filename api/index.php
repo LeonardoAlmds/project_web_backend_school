@@ -5,9 +5,9 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Inclui configurações e controladores
-include_once './config.php';
 include_once './controllers/CategoryController.php';
-include_once './controllers/AuthController.php'; // Inclui o AuthController
+include_once './controllers/ProductController.php'; // Inclui o ProductController
+include_once './controllers/AuthController.php';
 
 // Pega a URL requisitada
 $requestUri = $_SERVER['REQUEST_URI'];
@@ -27,7 +27,11 @@ switch ($route) {
         $controller = new CategoryController();
         switch ($method) {
             case 'GET':
-                $controller->listCategories();
+                if (isset($_GET['id'])) {
+                    $controller->getCategoryById($_GET['id']);
+                } else {
+                    $controller->listCategories();
+                }
                 break;
             case 'POST':
                 $controller->createCategory();
@@ -44,6 +48,53 @@ switch ($route) {
         }
         break;
 
+        case '/categories/top':
+            if ($method === 'GET') {
+                $controller = new CategoryController();
+                $controller->listTopCategoriesByProductCount();
+            } else {
+                http_response_code(405);
+                echo json_encode(["message" => "Método não permitido"]);
+            }
+            break;
+
+    case '/products':
+        $controller = new ProductController();
+        switch ($method) {
+            case 'GET':
+                // Verifica se um 'category_id' foi passado como parâmetro na URL
+                if (isset($_GET['category_id'])) {
+                    $controller->listProductsByCategory($_GET['category_id']);
+                } else {
+                    $controller->listProducts(); // Caso contrário, lista todos os produtos
+                }
+                break;
+            case 'POST':
+                $controller->createProduct();
+                break;
+            case 'PUT':
+                $controller->updateProduct();
+                break;
+            case 'DELETE':
+                $controller->deleteProduct();
+                break;
+            default:
+                http_response_code(405);
+                echo json_encode(["message" => "Método não permitido"]);
+        }
+        break;
+        
+    case '/products/top-rated':
+        $controller = new ProductController();
+        if ($method === 'GET') {
+            $controller->listTopRatedProducts();
+        } else {
+            http_response_code(405);
+            echo json_encode(["message" => "Método não permitido"]);
+        }
+        break;
+            
+        
     // Rota para registro de usuário
     case '/register':
         if ($method === 'POST') {
