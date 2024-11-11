@@ -65,6 +65,16 @@ class ProductController {
         $products = $this->product->getTopRatedProducts();
         echo json_encode($products);
     }
-      
+
+    public function getProductById($id) {
+        $product = $this->product->getProductById($id);
+        if ($product) {
+            echo json_encode($product);
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "Produto não encontrado"]);
+        }
+    }
+
 }
 ?>
